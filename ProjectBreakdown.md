@@ -1,13 +1,8 @@
  Project Breakdown
-sentinel.sh: The Bash entry point for local checks.
+db_check.sh: The lightweight Bash script for fast, initial OS checks.
 
-sentinel_analyzer.py: The Python script for gathering system data. Uses psutil and subprocess.
+db_analyzer.py: The robust Python script for detailed OS and database analysis.
 
-sentinel_reporter.py: The Python script for data aggregation, report generation, and alerting.
+salt/: SaltStack states for deployment and configuration.
 
-salt/: Contains the SaltStack states and pillars for deployment.
-
-.github/workflows/: The CI/CD pipeline definition using GitHub Actions.
-
-docker-compose.yml: The file defining the containerized test environment.
 

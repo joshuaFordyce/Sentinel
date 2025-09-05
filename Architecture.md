@@ -1,30 +1,17 @@
-The architecture of Sentinel is designed to be simple, scalable, and resilient. It follows a decentralized model where the monitoring logic runs on the target systems, and the reporting and alerting logic is centralized.
+The architecture is a decentralized data collection, centralized configuration, and unified observability model.
 
-Sentinel Minions (on each Host):
+Agent (Host):
 
-The core of the system resides here. The sentinel.sh script acts as the entry point, orchestrating checks on a scheduled basis (e.g., via cron).
+Bash Script (db_check.sh): The entry point. A lightweight script for rapid OS health checks. It runs on a tight loop and, if all is well, it calls the Python script.
 
-It executes the Python Sentinel Analyzer (sentinel_analyzer.py), which uses system libraries to gather detailed, host-specific metrics (CPU, disk, OS version, etc.).
+Python Script (db_analyzer.py): The "brain" of the agent. It performs detailed OS and database-specific checks and formats the data for collection.
 
-The analyzer's output is a structured JSON report.
+Configurator (Salt Master):
 
-Configuration Management (SaltStack):
+The control plane for the entire database fleet. Salt is responsible for the initial deployment of the agent, ensuring the correct configuration (vm.swappiness, I/O scheduler), and providing a way to trigger automated remediation.
 
-This is the control plane. The Salt Master is responsible for securely deploying and configuring the Sentinel scripts on all target hosts (the Salt Minions).
+Observability Stack:
 
-It uses Salt States (.sls files) to ensure the scripts, Python dependencies, and cron jobs are present and in the desired state.
+Prometheus: The data collector. It scrapes metrics from the Python agent on each host. It's a time-series database that is optimized for this kind of data.
 
-Centralized Reporter (on a separate host):
-
-A dedicated host or a container with the Sentinel Reporter (sentinel_reporter.py) is used to collect and process the reports.
-
-It uses Salt's file-gathering capabilities to pull the JSON reports from all minions.
-
-This reporter script then analyzes the data, generates reports, and sends alerts.
-
-CI/CD Pipeline (GitHub Actions):
-
-This is the automated factory for your project. A GitHub Actions workflow automatically lints and tests your code and Salt States on every push.
-
-If the tests pass, it deploys the new version of your project to your Salt Master for distribution.
-
+Grafana: The visualization layer. It connects to Prometheus to provide a comprehensive, real-time dashboard of database and OS performance across the entire fleet.
